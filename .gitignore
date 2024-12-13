@@ -19,3 +19,5 @@ node_modules
 .git
 *Dockerfile*
 *docker-compose*
+
+service-account.json

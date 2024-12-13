@@ -1,26 +1,40 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サンクスカード</title>
+    <script src="https://static.worksmobile.com/woff/1.1/woff.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="tabs">
-        <button onclick="showTab('form')">投稿フォーム</button>
-        <button onclick="showTab('history')">送信履歴</button>
-        <button onclick="showTab('received')">受信履歴</button>
-        <button onclick="showTab('all')">投稿一覧</button>
-    </div>
-    <div id="content">
-        <div id="form" class="tab-content">
-            <form id="submissionForm">
-                <input type="text" id="receiver" placeholder="宛名">
-                <input type="date" id="date">
-                <textarea id="content" placeholder="内容"></textarea>
-                <button type="submit">送信</button>
-            </form>
+    <!-- WOFF SDK -->
+    <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.6.2/sdk.js"></script>
+
+    <div id="app">
+        <h1>サンクスカード</h1>
+        <div id="tabs">
+            <button onclick="showTab('form')">投稿フォーム</button>
+            <button onclick="showTab('history')">送信履歴</button>
+            <button onclick="showTab('received')">受信履歴</button>
+            <button onclick="showTab('all')">投稿一覧</button>
         </div>
-        <div id="history" class="tab-content"></div>
-        <div id="received" class="tab-content"></div>
-        <div id="all" class="tab-content"></div>
+        <div id="content">
+            <div id="form" class="tab-content">
+                <form id="submissionForm">
+                    <label for="receiver">宛名:</label>
+                    <select id="receiver" required></select>
+                    <label for="date">日付:</label>
+                    <input type="date" id="date" required>
+                    <label for="content">内容:</label>
+                    <textarea id="content" placeholder="内容を入力" required></textarea>
+                    <button type="submit">送信</button>
+                </form>
+            </div>
+            <div id="history" class="tab-content"></div>
+            <div id="received" class="tab-content"></div>
+            <div id="all" class="tab-content"></div>
+        </div>
     </div>
     <script src="app.js"></script>
 </body>

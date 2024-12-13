@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: thanks-card-system
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WOFF_ID
+        value: "<Your WOFF ID>"
+      - key: CLIENT_ID
+        value: "<Your Client ID>"
+      - key: CLIENT_SECRET
+        value: "<Your Client Secret>"
+      - key: SERVICE_ACCOUNT
+        value: "<Your Service Account>"
+      - key: PRIVATE_KEY
+        value: "<Your Private Key>"

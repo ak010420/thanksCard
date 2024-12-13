@@ -1,43 +1,40 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const lineworks = require('./lineworks');
-const googleSheets = require('./google-sheets');
 const submissionRoutes = require('./routes/submissions');
 const userRoutes = require('./routes/users');
 
 const app = express();
-
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 app.use('/submissions', submissionRoutes);
-app.use('/users', userRoutes); // ユーザー一覧のルート追加
+app.use('/users', userRoutes);
 
-// LINE WORKS BOT　callbackURLエンドポイント
-app.post('/webhook', async (req, res) => {
-    const signature = req.headers['x-works-signature'];
-    const body = JSON.stringify(req.body);
+// WOFFイベントのエンドポイント
+app.post('/woff/event', (req, res) => {
+    const { type, data } = req.body;
 
-    const isValid = validateRequest(body, signature, process.env.LW_BOT_SECRET);
-    if (!isValid) {
-        res.status(400).send('Invalid request');
-        return;
+    if (type === 'user.select') {
+        console.log('User selected:', data);
+    } else if (type === 'menu.click') {
+        console.log('Menu clicked:', data);
+    } else {
+        console.log('Unknown WOFF event type:', type);
     }
 
-    // メッセージイベントの処理
-    const { type, content, userId } = req.body;
-    if (type === 'message' && content.text === 'ありがとうの木投稿') {
-        const reply = { type: 'text', text: '投稿ページはこちら: https://your-app.onrender.com/woff' };
-        const token = await getAccessToken();
-        await sendMessageToUser(reply, process.env.LW_BOT_ID, userId, token);
-    }
-
-    res.status(200).send('OK');
+    res.status(200).send('Event received');
 });
 
-//API redirectURLエンドポイント
-app.get('/oauth/callback', (req, res) => {
-    const code = req.query.code;
+// フロントエンドのHTML提供
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 
-    res.send('OAuth authentication successful');
+// WOFF IDを返すAPIエンドポイント
+app.get('/api/woff-id', (req, res) => {
+    res.json({ woffId: process.env.WOFF_ID });
 });
 
 const PORT = process.env.PORT || 3000;
