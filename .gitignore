@@ -1,0 +1,21 @@
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Log
+*.log
+
+# VSCode
+.history/
+.vsCode/
+
+node_modules
+
+.env
+
+## Dockerとgitの除外ルール ##
+.git
+*Dockerfile*
+*docker-compose*
