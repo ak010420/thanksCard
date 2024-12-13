@@ -21,3 +21,5 @@ node_modules
 *docker-compose*
 
 service-account.json
+
+render.yaml
