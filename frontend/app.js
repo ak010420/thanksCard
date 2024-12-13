@@ -1,10 +1,14 @@
 function showTab(tabId) {
+    // すべてのタブコンテンツを非表示
     document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-    document.getElementById(tabId).style.display = 'block');
+    
+    // 選択されたタブコンテンツを表示
+    document.getElementById(tabId).style.display = 'block';
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        showTab('form');
         // WOFF IDをバックエンドから取得
         const response = await fetch('/api/woff-id');
         const data = await response.json();

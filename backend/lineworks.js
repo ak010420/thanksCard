@@ -51,6 +51,45 @@ async function getAccessToken() {
     return res.data.access_token;
 }
 
+//固定メニュー実装
+async function setFixedMenu() {
+    try {
+        // アクセストークン取得
+        const accessToken = await getAccessToken();
+
+        const botNo = process.env.BOT_NO;
+        const organizationId = process.env.ORGANIZATION_ID;
+        // 固定メニュー設定のAPIエンドポイント
+        const apiUrl = `https://apis.worksmobile.com/r/${organizationId}/message/v1/bot/${botNo}/persistentMenu`;
+        
+        // メニュー設定の詳細
+        const menuConfig = {
+            "items": [
+                {
+                    "type": "link",
+                    "name": "サンクスカード",
+                    "url": process.env.WEBAPP_URL
+                }
+            ]
+        };
+
+        // API呼び出し
+        const response = await axios.post(apiUrl, menuConfig, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('固定メニューを正常に設定:', response.data);
+        return response.data;
+
+    } catch (error) {
+        console.error('固定メニュー設定エラー:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+}
+
 // ユーザー一覧取得
 async function getUserList() {
     const token = await getAccessToken(); // 必要なトークンを取得

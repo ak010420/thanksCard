@@ -9,5 +9,9 @@ body {
 }
 
 .tab-content {
-    display: none;
+    display: none; /* デフォルトで非表示 */
+}
+
+#form {
+    display: block; /* 投稿フォームは初期表示 */
 }
