@@ -11,7 +11,14 @@
 .history/
 .vsCode/
 
-node_modules
+# 機密情報と環境固有のファイル
+service-account.json
+render.yaml
+.env
+
+# Node.js関連
+node_modules/
+npm-debug.log
 
 .env
 
@@ -19,7 +26,3 @@ node_modules
 .git
 *Dockerfile*
 *docker-compose*
-
-service-account.json
-
-render.yaml
