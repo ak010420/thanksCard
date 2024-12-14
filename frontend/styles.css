@@ -1,17 +1,203 @@
-body {
-    font-family: Arial, sans-serif;
+:root {
+    --primary-color: #FF69B4;
+    --background-color: #FFF;
+    --card-background: white;
 }
 
-#tabs button {
-    padding: 10px;
-    margin: 5px;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', 'Noto Sans JP', sans-serif;
+    background-color: var(--background-color);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+header{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #333333;
+    background-color: #ffffff;
+    height: fit-content;
+    padding: 16px 16px 32px 16px;
+    margin-bottom: 16px;
+    gap: 8px;
+    box-shadow: 1px 1px 2px 0px rgba(115, 115, 115, 0.45);
+}
+
+h1{
+    font-size: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.username{
+    font-size: 12px;
+    align-self: flex-end; /* 右揃え */
+    padding-right: 16px; /* 右側の余白 */
+}
+
+.menu {
+    padding:0 16px;
+}
+
+.nav-tabs {
+    position: relative;
+    display: flex;
+    background-color: #ECF2F3;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.nav-tabs .tab {
+    flex: 1;
+    padding: 12px 3px;
+    text-align: center;
     cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    color: #7A8F96;
+    position: relative;
+    z-index: 1; /* スライダーより上に表示 */
+    transition: color 0.3s ease;
+}
+
+.nav-tabs .tab.active {
+    color: #ffffff;
+}
+
+.nav-tabs .slider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    height: 90%;
+    background-color: var(--primary-color); /* スライダーの背景色を白に */
+    border-radius: 999px; /* スライダーの角丸 */
+    z-index: 0; /* タブの下に表示 */
+    transition: transform 0.3s ease, width 0.3s ease;
+}
+
+main {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px 16px 16px 16px;
 }
 
 .tab-content {
-    display: none; /* デフォルトで非表示 */
+    display: none;
 }
 
-#form {
-    display: block; /* 投稿フォームは初期表示 */
+.tab-content.active {
+    display: block;
+}
+
+#submissionForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7A8F96;
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') no-repeat right 10px center;
+    background-size: 24px;
+    padding-right: 40px;
+}
+
+.form-group textarea {
+    max-height: 300px; /* テキストエリアの最大高さを制限 */
+    min-height: 100px;
+    overflow-y: auto;
+    resize: vertical;
+    width: 100%;
+}
+
+.submit {
+    background-color: var(--primary-color);
+    font-size: 14px;
+    color: white;
+    border: none;
+    padding: 16px;
+    margin: 64px 0 0 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.history-tabs {
+    position: relative;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
+    margin-bottom: 15px;
+    width: 60%;
+}
+
+.history-tab-slider {
+    position: absolute;
+    bottom: 0;
+    height: 1.5px;
+    background-color: #20242C;
+    z-index: 1;
+    transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.history-tab {
+    flex: 1;
+    background-color: #ffffff;
+    padding: 6px;
+    color: #7A8F96;
+    font-size: 12px;
+    font-weight: 500;
+    border-bottom: 1.5px solid #ddd;
+    user-select: none;
+    touch-action: manipulation;
+    position: relative;
+    z-index: 0;
+}
+
+.history-tab.active {
+    color: #20242C;
+}
+
+.submission-card {
+    background-color: var(--card-background);
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    box-shadow: 1px 1px 5px 0px rgba(115, 115, 115, 0.45);
 }

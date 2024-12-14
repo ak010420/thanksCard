@@ -6,9 +6,23 @@ async function addSubmission({ sender, receiver, date, content }) {
     await sheet.addRow([sender, receiver, date, content, timestamp]);
 }
 
-async function getSubmissions(userId) {
+async function getSubmissions(userId, filter) {
     const sheet = await googleSheets.getSheet('Submissions');
-    return sheet.getRows().filter(row => row.receiver === userId || row.sender === userId);
+    const rows = await sheet.getRows();
+    
+    switch(filter) {
+        case 'sent':
+            return rows.filter(row => row.sender === userId);
+        case 'received':
+            return rows.filter(row => row.receiver === userId);
+        default:
+            return rows;
+    }
 }
 
-module.exports = { addSubmission, getSubmissions };
+async function getAllSubmissions() {
+    const sheet = await googleSheets.getSheet('Submissions');
+    return sheet.getRows();
+}
+
+module.exports = { addSubmission, getSubmissions, getAllSubmissions };

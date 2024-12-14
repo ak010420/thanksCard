@@ -8,6 +8,10 @@ const TOKEN_PATH = './access_token.json'; // アクセストークンキャッ�
 // JWTを生成
 function getJWT() {
     const currentTime = Math.floor(Date.now() / 1000);
+    if (!process.env.CLIENT_ID || !process.env.SERVICE_ACCOUNT || !process.env.PRIVATE_KEY) {
+        throw new Error("環境変数 CLIENT_ID, SERVICE_ACCOUNT, PRIVATE_KEY を設定してください");
+    }
+
     return jwt.sign(
         {
             iss: process.env.CLIENT_ID,
@@ -57,20 +61,25 @@ async function setFixedMenu() {
         // アクセストークン取得
         const accessToken = await getAccessToken();
 
-        const botNo = process.env.BOT_NO;
-        const organizationId = process.env.ORGANIZATION_ID;
+        const botId = process.env.BOT_ID;
+        if (!botId || !process.env.WEBAPP_URL) {
+            throw new Error("環境変数 BOT_ID, WEBAPP_URL を設定してください");
+        }
+
         // 固定メニュー設定のAPIエンドポイント
-        const apiUrl = `https://apis.worksmobile.com/r/${organizationId}/message/v1/bot/${botNo}/persistentMenu`;
+        const apiUrl = `https://www.worksapis.com/v1.0/bots/${botId}/persistentmenu`;
         
         // メニュー設定の詳細
         const menuConfig = {
-            "items": [
-                {
-                    "type": "link",
-                    "name": "サンクスカード",
-                    "url": process.env.WEBAPP_URL
-                }
-            ]
+            "content": {
+                "actions": [
+                    {
+                        "type": "uri",
+                        "label": "ありがとうの木を投稿する",
+                        "uri": process.env.WEBAPP_URL
+                    }
+                ]
+            }
         };
 
         // API呼び出し
