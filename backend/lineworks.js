@@ -141,7 +141,7 @@ async function getUserList() {
         const token = await getAccessToken();
         console.log('Access Token for User List:', token);
 
-        const response = await axios.get('https://apis.worksmobile.com/r/api/organization/users', {
+        const response = await axios.get('https://www.worksapis.com/v1.0/users', {
             headers: { Authorization: `Bearer ${token}` },
         });
         console.log(response.data); // レスポンスを確認

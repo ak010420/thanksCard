@@ -23,66 +23,65 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/submissions', submissionRoutes);
 app.use('/users', userRoutes);
 
+// 固定メニュー設定 (サーバー起動時に実行)
+(async () => {
+    try {
+        await setFixedMenu();
+        console.log('固定メニューが正常に設定されました');
+    } catch (error) {
+        console.error('固定メニュー設定エラー:', error.message);
+    }
+})();
+
 // WOFFイベントのエンドポイント
-app.post('/woff/event', (req, res) => {
-    const start = Date.now();
-    console.log('Request received at:', new Date().toISOString());
+app.post('/woff/event', async(req, res) => {
+    //const start = Date.now();
+    //console.log('Request received at:', new Date().toISOString());
 
     const { type, data } = req.body;
 
-    if (type === 'user.select') {
-        console.log('User selected:', data);
-    } else if (type === 'menu.click') {
-        console.log('Menu clicked:', data);
-    } else {
-        console.log('Unknown WOFF event type:', type);
+    try {
+        if (type === 'user.select') {
+            const userId = data.source?.userId;
+
+            if (!userId) {
+                return res.status(400).send('UserId not found');
+            }
+
+            const response = await axios.post('http://localhost:3000/users/current', { userId });
+            res.status(200).json({ message: 'User recognized', username: response.data.username });
+        } else {
+            res.status(400).send('Unknown event type');
+        }
+    } catch (error) {
+        console.error('Error processing WOFF event:', error.message);
+        res.status(500).json({ error: 'Failed to process event', details: error.message });
     }
-
-    res.status(200).send('Event received');
-    console.log('Response sent in:', Date.now() - start, 'ms');
 });
-
 
 // フロントエンドのHTML提供
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// WOFF IDを返すAPIエンドポイント
-app.get('/api/woff-id', (req, res) => {
-    try {
-        const woffId = process.env.TC_WOFF_ID;
-        if (!woffId) {
-            return res.status(404).json({ message: 'WOFF ID が見つかりませんでした' });
-        }
-        res.json({ woffId });
-    } catch (error) {
-        console.error('WOFF ID 取得エラー:', error.message);
-        res.status(502).json({ 
-            error: 'Bad Gateway', 
-            details: 'WOFF ID の取得に失敗しました。' 
-        });
-    }
-});
-
 // エラーハンドリングを追加
-app.use((err, req, res, next) => {
-    res.on('finish', () => {
-        console.log(`Response: ${res.statusCode} ${res.statusMessage}`);
-    });
-    next();
-    console.error('Unhandled Error:', err);
-    res.status(500).json({ 
-        error: 'Internal Server Error', 
-        details: err.message 
-    });
-});
+// app.use((err, req, res, next) => {
+//     res.on('finish', () => {
+//         console.log(`Response: ${res.statusCode} ${res.statusMessage}`);
+//     });
+//     next();
+//     console.error('Unhandled Error:', err);
+//     res.status(500).json({ 
+//         error: 'Internal Server Error', 
+//         details: err.message 
+//     });
+// });
 
-app.use(cors({
-    origin: 'https://thanks-card-system.onrender.com', // フロントエンドのURL
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// app.use(cors({
+//     origin: 'https://thanks-card-system.onrender.com', // フロントエンドのURL
+//     methods: ['GET', 'POST', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization']
+// }));
 
 const PORT = process.env.TC_PORT || 3000;
 app.listen(PORT, () => {
