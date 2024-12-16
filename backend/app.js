@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const compression = require('compression');
 const lineworks = require('./lineworks');
 const submissionRoutes = require('./routes/submissions');
 const userRoutes = require('./routes/users');
