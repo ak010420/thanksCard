@@ -83,7 +83,7 @@ h1{
     bottom: 0;
     margin: auto;
     height: 90%;
-    background-color: var(--primary-color); /* スライダーの背景色を白に */
+    background-color: var(--primary-color); /* スライダーの背景色をプライマリーカラーに */
     border-radius: 999px; /* スライダーの角丸 */
     z-index: 0; /* タブの下に表示 */
     transition: transform 0.3s ease, width 0.3s ease;

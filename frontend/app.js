@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // 全投稿タブの場合は投稿を読み込む
                 if (tabId === 'all') {
-                    await loadAllSubmissions(); // 必要なときだけ実行
+                    loadAllSubmissions(); // 必要なときだけ実行
                 }
             });
         });
