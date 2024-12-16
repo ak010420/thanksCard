@@ -36,6 +36,10 @@ async function updateSummarySheet() {
     const submissionsSheet = await getSheet('投稿一覧');
     const summarySheet = await getSheet('集計');
     
+    if (!sheet) {
+        throw new Error('Sheet not found');
+    }
+
     const rows = await submissionsSheet.getRows();
     
     // データをグループ化して集計
