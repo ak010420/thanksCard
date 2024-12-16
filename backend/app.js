@@ -49,7 +49,7 @@ app.get('/', (req, res) => {
 
 // WOFF IDを返すAPIエンドポイント
 app.get('/api/woff-id', (req, res) => {
-    res.json({ woffId: process.env.WOFF_ID });
+    res.json({ woffId: process.env.TC_WOFF_ID });
 });
 
 // エラーハンドリングを追加
@@ -70,5 +70,5 @@ app.use(cors({
 const PORT = process.env.TC_PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🔑 WOFF ID: ${process.env.WOFF_ID}`);
+    console.log(`🔑 WOFF ID: ${process.env.TC_WOFF_ID}`);
 });
