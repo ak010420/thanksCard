@@ -7,11 +7,12 @@ const submissionRoutes = require('./routes/submissions');
 const userRoutes = require('./routes/users');
 const cors = require('cors');
 
+const app = express();
+
 // CORS対応
 app.use(cors());
 
 // ミドルウェア設定
-const app = express();
 app.use(bodyParser.json());
 app.use(compression()); // リソースを圧縮
 app.use(express.static(path.join(__dirname, '../frontend'), { maxAge: '1d' })); // 1日のキャッシュ
