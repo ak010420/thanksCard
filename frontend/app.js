@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
          // スライダーの位置を更新する関数
@@ -125,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // WOFF IDをバックエンドから取得
-        const woffId = process.env.WOFF_ID;
+        const woffId = process.env.TC_WOFF_ID;
 
         // WOFF初期化
         const woff = await WOFF.init({ woffId });

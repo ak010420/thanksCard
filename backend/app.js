@@ -45,5 +45,5 @@ app.get('/api/woff-id', (req, res) => {
     res.json({ woffId: process.env.WOFF_ID });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.TC_PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

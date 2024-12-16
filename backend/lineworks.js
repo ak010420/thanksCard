@@ -8,12 +8,12 @@ const TOKEN_PATH = './access_token.json'; // アクセストークンキャッ�
 // JWTを生成
 function getJWT() {
     const currentTime = Math.floor(Date.now() / 1000);
-    if (!process.env.CLIENT_ID || !process.env.SERVICE_ACCOUNT || !process.env.PRIVATE_KEY) {
+    if (!process.env.TC_CLIENT_ID || !process.env.TC_SERVICE_ACCOUNT || !process.env.TC_PRIVATE_KEY) {
         throw new Error("環境変数 CLIENT_ID, SERVICE_ACCOUNT, PRIVATE_KEY を設定してください");
     }
 
     // 改行文字を適切に処理
-    const privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n')
+    const privateKey = process.env.TC_PRIVATE_KEY.replace(/\\n/g, '\n')
         // 改行が正しく含まれていない場合の追加対応
         .replace(/^["|']/, '')
         .replace(/["|']$/, '')
@@ -26,8 +26,8 @@ function getJWT() {
 
     return jwt.sign(
         {
-            iss: process.env.CLIENT_ID,
-            sub: process.env.SERVICE_ACCOUNT,
+            iss: process.env.TC_CLIENT_ID,
+            sub: process.env.TC_SERVICE_ACCOUNT,
             iat: currentTime,
             exp: currentTime + 3600,
         },
@@ -89,8 +89,8 @@ async function setFixedMenu() {
         // アクセストークン取得
         const accessToken = await getAccessToken();
 
-        const botId = process.env.BOT_ID;
-        const webAppUrl = process.env.WEBAPP_URL;
+        const botId = process.env.TC_BOT_ID;
+        const webAppUrl = process.env.TC_WEBAPP_URL;
 
         if (!botId || !webAppUrl) {
             throw new Error("BOT_IDまたはWEBAPP_URLが設定されていません。環境変数を確認してください。");
@@ -105,7 +105,7 @@ async function setFixedMenu() {
                     {
                         "type": "uri",
                         "label": "ありがとうの木を投稿する",
-                        "uri": process.env.WEBAPP_URL
+                        "uri": process.env.TC_WEBAPP_URL
                     }
                 ]
             }

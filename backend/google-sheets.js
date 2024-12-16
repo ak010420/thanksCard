@@ -2,22 +2,22 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
 
 async function getSheet(sheetName) {
-    if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.SHEETID) {
+    if (!process.env.TC_GOOGLE_CLIENT_EMAIL || !process.env.TC_GOOGLE_PRIVATE_KEY || !process.env.TC_SHEETID) {
         throw new Error('Missing Google Sheets configuration. Check your environment variables.');
     }
 
     const serviceAccountAuth = new JWT({
-        email: process.env.GOOGLE_CLIENT_EMAIL,
-        key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        email: process.env.TC_GOOGLE_CLIENT_EMAIL,
+        key: process.env.TC_GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
         scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
 
-    const doc = new GoogleSpreadsheet(process.env.SHEETID);
+    const doc = new GoogleSpreadsheet(process.env.TC_SHEETID);
     
     try {
         await doc.useServiceAccountAuth({
-            client_email: process.env.GOOGLE_CLIENT_EMAIL,
-            private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
+            client_email: process.env.TC_GOOGLE_CLIENT_EMAIL,
+            private_key: process.env.TC_GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
         });
 
         await doc.loadInfo();
