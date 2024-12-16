@@ -130,8 +130,6 @@ async function setFixedMenu() {
             console.error('固定メニュー設定エラー (Response):', error.response.data);
             console.error('HTTP Status:', error.response.status);
             console.error('Headers:', error.response.headers);
-        } else {
-            console.error('固定メニュー設定エラー:', error.message);
         }
         throw error;
     }
