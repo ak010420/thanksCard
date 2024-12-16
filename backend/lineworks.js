@@ -26,6 +26,7 @@ function getJWT() {
 
 // アクセストークン取得
 async function getAccessToken() {
+    try {
     // キャッシュチェック
     if (fs.existsSync(TOKEN_PATH)) {
         const tokenData = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf8'));
@@ -46,6 +47,9 @@ async function getAccessToken() {
 
     const res = await axios.post("https://auth.worksmobile.com/oauth2/v2.0/token", params);
 
+    console.log('Access Token obtained successfully');
+    console.log('Token expires in:', res.data.expires_in, 'seconds');
+
     // アクセストークンと有効期限をキャッシュに保存
     fs.writeFileSync(TOKEN_PATH, JSON.stringify({
         token: res.data.access_token,
@@ -53,6 +57,10 @@ async function getAccessToken() {
     }));
 
     return res.data.access_token;
+    } catch (error) {
+        console.error('Failed to obtain access token:', error.response ? error.response.data : error.message);
+        throw error;
+    }
 }
 
 //固定メニュー実装
