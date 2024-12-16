@@ -254,7 +254,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         async function loadAllSubmissions() {
             try {
-                const response = await fetch('/submissions/all');
+                const response = await fetch('/submissions/all', {
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+        
+                if (response.status === 502) {
+                    throw new Error('サーバーが応答していません。管理者に連絡してください。');
+                }
+        
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+        
+                const submissions = await response.json();
                 
                 // レスポンスの詳細を確認
                 console.log('Response status:', response.status);
@@ -291,8 +307,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (error) {
         // エラー時のUI表示
+        console.error('全投稿読み込みエラー:', error);
         const container = document.getElementById('all-content');
-        container.innerHTML = `<div class="error-message">投稿の読み込みに失敗しました: ${error.message}</div>`;
+        container.innerHTML = `
+            <div class="error-message">
+                投稿の読み込みに失敗しました。
+                <br>
+                ${error.message}
+                <br>
+                <button onclick="window.location.reload()">再読み込み</button>
+            </div>
+        `;
     }
 });
 

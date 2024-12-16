@@ -52,5 +52,23 @@ app.get('/api/woff-id', (req, res) => {
     res.json({ woffId: process.env.WOFF_ID });
 });
 
+// エラーハンドリングを追加
+app.use((err, req, res, next) => {
+    console.error('Unhandled Error:', err);
+    res.status(500).json({ 
+        error: 'Internal Server Error', 
+        details: err.message 
+    });
+});
+
+app.use(cors({
+    origin: 'https://thanks-card-system.onrender.com', // フロントエンドのURL
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 const PORT = process.env.TC_PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🔑 WOFF ID: ${process.env.WOFF_ID}`);
+});
