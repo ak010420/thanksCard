@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 document.addEventListener('DOMContentLoaded', async () => {
     try {
          // スライダーの位置を更新する関数
