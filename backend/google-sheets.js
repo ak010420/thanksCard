@@ -1,5 +1,5 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const doc = new GoogleSpreadsheet(process.env.SHEETID);
+const { JWT } = require('google-auth-library');
 
 async function getSheet(sheetName) {
     const serviceAccountAuth = new JWT({
@@ -12,6 +12,7 @@ async function getSheet(sheetName) {
         audience: process.env.GOOGLE_TOKEN_URI
     });
 
+    const doc = new GoogleSpreadsheet(process.env.SHEETID);
     await doc.auth(serviceAccountAuth);
     await doc.loadInfo();
     return doc.sheetsByTitle[sheetName];
