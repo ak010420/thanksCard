@@ -6,14 +6,15 @@
     "start": "node backend/app.js"
   },
   "dependencies": {
-    "body-parser": "^1.20.2",
+    "body-parser": "^1.20.3",
     "compression": "^1.7.5",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "get-intrinsic": "^1.2.6",
     "google-auth-library": "^9.15.0",
-    "google-spreadsheet": "^3.2.0",
-    "jsonwebtoken": "^9.0.0"
+    "google-spreadsheet": "^4.1.4",
+    "jsonwebtoken": "^9.0.2"
   },
   "engines": {
     "node": "16.x"
