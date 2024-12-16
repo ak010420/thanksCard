@@ -14,7 +14,8 @@
     "get-intrinsic": "^1.2.6",
     "google-auth-library": "^9.15.0",
     "google-spreadsheet": "^4.1.4",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^11.0.3"
   },
   "engines": {
     "node": "16.x"
