@@ -10,7 +10,8 @@ router.get('/', async (req, res) => {
         const response = await axios.get('https://apis.worksmobile.com/r/api/organization/users', {
             headers: { Authorization: `Bearer ${token}` }
         });
-
+        console.log('Users response:', response.data); // レスポンスの確認
+        
         const users = response.data.users.map(user => ({
             id: user.id,
             name: user.name,

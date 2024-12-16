@@ -139,7 +139,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const user = await woff.getUser();
-        console.log('Logged-in user:', user);
+        console.log('Logged-in user:', user); // ユーザー情報を確認
+        if (!user) {
+            console.error('User is not logged in or there is an issue fetching user info.');
+            return;
+        }
 
         // ユーザー名を表示
         const usernameElement = document.querySelector('.username');
@@ -151,8 +155,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             throw new Error('Failed to fetch user list.');
         }
         const users = await userListResponse.json();
-        console.log('Fetched users from backend:', users);
+        console.log('Fetched users from backend:', users);// ここでレスポンス内容を確認
+
         const select = document.getElementById('receiver');
+        if (!select) {
+            console.error('Receiver select element not found.');
+            return;
+        }
         if (users.length === 0) {
             console.warn('No users available.');
             select.innerHTML = '<option value="">利用可能なユーザーがいません</option>';
@@ -171,13 +180,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             const date = document.getElementById('date').value;
             const content = document.getElementById('content').value;
 
-            await fetch('/submissions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sender: user.id, receiver, date, content }),
-            });
-
-            alert('送信しました！');
+            if (!receiver || !date || !content) {
+                alert('すべてのフィールドを入力してください。');
+                return;
+            }
+        
+            try {
+                await fetch('/submissions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sender: user.id, receiver, date, content }),
+                });
+        
+                alert('送信しました！');
+            } catch (error) {
+                console.error('送信エラー:', error);
+                alert('送信に失敗しました。再度お試しください。');
+            }
         });
 
         // 時間更新

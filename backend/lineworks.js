@@ -146,6 +146,7 @@ async function getUserList() {
         const response = await axios.get('https://apis.worksmobile.com/r/api/organization/users', {
             headers: { Authorization: `Bearer ${token}` },
         });
+        console.log(response.data); // レスポンスを確認
 
         if (!response.data.users || response.data.users.length === 0) {
             console.warn('No users found in the API response.');
