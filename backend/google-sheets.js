@@ -2,20 +2,30 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
 
 async function getSheet(sheetName) {
+    if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.SHEETID) {
+        throw new Error('Missing Google Sheets configuration. Check your environment variables.');
+    }
+
     const serviceAccountAuth = new JWT({
         email: process.env.GOOGLE_CLIENT_EMAIL,
         key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-        
-        // service-account.jsonの追加情報を任意で追加可能
-        projectId: process.env.GOOGLE_PROJECT_ID,
-        audience: process.env.GOOGLE_TOKEN_URI
+        scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
 
     const doc = new GoogleSpreadsheet(process.env.SHEETID);
-    await doc.auth(serviceAccountAuth);
-    await doc.loadInfo();
-    return doc.sheetsByTitle[sheetName];
+    
+    try {
+        await doc.useServiceAccountAuth({
+            client_email: process.env.GOOGLE_CLIENT_EMAIL,
+            private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
+        });
+
+        await doc.loadInfo();
+        return doc.sheetsByTitle[sheetName];
+    } catch (error) {
+        console.error('Error accessing Google Sheet:', error);
+        throw error;
+    }
 }
 
 async function updateSummarySheet() {
