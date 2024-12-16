@@ -21,6 +21,10 @@ async function getSheet(sheetName) {
         });
 
         await doc.loadInfo();
+        const sheet = doc.sheetsByTitle[sheetName];
+        if (!sheet) {
+            throw new Error(`Sheet "${sheetName}" not found`);
+        }
         return doc.sheetsByTitle[sheetName];
     } catch (error) {
         console.error('Error accessing Google Sheet:', error);
@@ -29,8 +33,8 @@ async function getSheet(sheetName) {
 }
 
 async function updateSummarySheet() {
-    const submissionsSheet = await getSheet('Submissions');
-    const summarySheet = await getSheet('Summary');
+    const submissionsSheet = await getSheet('投稿一覧');
+    const summarySheet = await getSheet('集計');
     
     const rows = await submissionsSheet.getRows();
     
