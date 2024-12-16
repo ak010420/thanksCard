@@ -19,6 +19,8 @@ app.use(bodyParser.json());
 app.use(compression()); // リソースを圧縮
 app.use(express.static(path.join(__dirname, '../frontend'), { maxAge: '1d' })); // 1日のキャッシュ
 app.use(express.static(path.join(__dirname, '../frontend')));
+// ユーザーリストのエンドポイント
+app.use('/users', require('./routes/users'));
 
 // ルーティング
 app.use('/submissions', submissionRoutes);
