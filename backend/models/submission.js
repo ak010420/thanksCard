@@ -1,13 +1,13 @@
 const googleSheets = require('../google-sheets');
 
 async function addSubmission({ sender, receiver, date, content }) {
-    const sheet = await googleSheets.getSheet('Submissions');
+    const sheet = await googleSheets.getSheet('集計');
     const timestamp = new Date().toISOString();
     await sheet.addRow([sender, receiver, date, content, timestamp]);
 }
 
 async function getSubmissions(userId, filter) {
-    const sheet = await googleSheets.getSheet('Submissions');
+    const sheet = await googleSheets.getSheet('集計');
     const rows = await sheet.getRows();
     
     switch(filter) {
@@ -21,7 +21,7 @@ async function getSubmissions(userId, filter) {
 }
 
 async function getAllSubmissions() {
-    const sheet = await googleSheets.getSheet('Submissions');
+    const sheet = await googleSheets.getSheet('集計');
     return sheet.getRows();
 }
 
