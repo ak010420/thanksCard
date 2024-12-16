@@ -199,20 +199,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // 時間更新
-        function updateTime() {
-            const timeElement = document.getElementById('current-time');
-            const now = new Date();
-            timeElement.textContent = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-        }
-        updateTime();
-        setInterval(updateTime, 60000);
-
-    } catch (error) {
-        console.error('Error initializing WOFF:', error);
-    }
-});
-
 async function loadHistory(type) {
     try {
         const user = await WOFF.init({ woffId }).getUser();
