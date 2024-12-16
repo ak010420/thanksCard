@@ -16,7 +16,7 @@ app.use('/submissions', submissionRoutes);
 app.use('/users', userRoutes);
 
 // WOFFイベントのエンドポイント
-aapp.post('/woff/event', (req, res) => {
+app.post('/woff/event', (req, res) => {
     const start = Date.now();
     console.log('Request received at:', new Date().toISOString());
 
