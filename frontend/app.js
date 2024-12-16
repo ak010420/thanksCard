@@ -125,9 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // WOFF IDをバックエンドから取得
-        const response = await fetch('/api/woff-id');
-        const data = await response.json();
-        const woffId = data.woffId;
+        const woffId = process.env.WOFF_ID;
 
         // WOFF初期化
         const woff = await WOFF.init({ woffId });

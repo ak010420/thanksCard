@@ -4,6 +4,7 @@ const { getAccessToken } = require('../lineworks');
 
 const router = express.Router();
 
+// ユーザー情報を取得するエンドポイント
 router.get('/', async (req, res) => {
     try {
         const token = await getAccessToken();
@@ -11,7 +12,7 @@ router.get('/', async (req, res) => {
             headers: { Authorization: `Bearer ${token}` }
         });
         console.log('Users response:', response.data); // レスポンスの確認
-        
+
         const users = response.data.users.map(user => ({
             id: user.id,
             name: user.name,
