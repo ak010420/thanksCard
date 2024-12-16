@@ -76,7 +76,6 @@ async function getAccessToken() {
 
         writeTokenCache(res.data.access_token, res.data.expires_in);
         console.log('Access Token obtained successfully');
-        console.log('Access Token', res.data.access_token);
         return res.data.access_token;
     } catch (error) {
         console.error('Failed to obtain access token:', error.response ? error.response.data : error.message);
@@ -140,6 +139,7 @@ async function setFixedMenu() {
 async function getUserList() {
     try {
         const token = await getAccessToken();
+        console.log('Access Token', token);
         console.log('Access Token for User List:', token);
 
         const response = await axios.get('https://www.worksapis.com/v1.0/users', {
