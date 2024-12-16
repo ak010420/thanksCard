@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const path = require('path');
 const compression = require('compression');
@@ -49,11 +50,27 @@ app.get('/', (req, res) => {
 
 // WOFF IDを返すAPIエンドポイント
 app.get('/api/woff-id', (req, res) => {
-    res.json({ woffId: process.env.TC_WOFF_ID });
+    try {
+        const woffId = process.env.TC_WOFF_ID;
+        if (!woffId) {
+            return res.status(404).json({ message: 'WOFF ID が見つかりませんでした' });
+        }
+        res.json({ woffId });
+    } catch (error) {
+        console.error('WOFF ID 取得エラー:', error.message);
+        res.status(502).json({ 
+            error: 'Bad Gateway', 
+            details: 'WOFF ID の取得に失敗しました。' 
+        });
+    }
 });
 
 // エラーハンドリングを追加
 app.use((err, req, res, next) => {
+    res.on('finish', () => {
+        console.log(`Response: ${res.statusCode} ${res.statusMessage}`);
+    });
+    next();
     console.error('Unhandled Error:', err);
     res.status(500).json({ 
         error: 'Internal Server Error', 

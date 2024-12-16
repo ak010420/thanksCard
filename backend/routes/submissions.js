@@ -16,17 +16,18 @@ router.get('/:userId', async (req, res) => {
 });
 
 router.get('/all', async (req, res) => {
+    res.json({ message: 'ダミー応答テスト中' });
     try {
         const submissions = await getAllSubmissions();
         if (!submissions) {
-            return res.status(404).json({ message: 'No submissions found' });
+            return res.status(404).json({ message: '提出データが見つかりませんでした' });
         }
         res.json(submissions);
     } catch (error) {
-        console.error('Get all submissions error:', error);
-        res.status(500).json({ 
-            error: 'Internal Server Error', 
-            details: error.message 
+        console.error('提出データ取得エラー:', error.message);
+        res.status(502).json({ 
+            error: 'Bad Gateway', 
+            details: 'データベースから提出データの取得に失敗しました。' 
         });
     }
 });
