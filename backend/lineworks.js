@@ -56,20 +56,15 @@ async function getAccessToken() {
         scope: "bot,user.read",
     });
 
-    try {
-        const res = await axios.post("https://auth.worksmobile.com/oauth2/v2.0/token", params);
+    const res = await axios.post("https://auth.worksmobile.com/oauth2/v2.0/token", params);
 
-        // アクセストークンと有効期限をキャッシュに保存
-        fs.writeFileSync(TOKEN_PATH, JSON.stringify({
-            token: res.data.access_token,
-            expiry: new Date(Date.now() + res.data.expires_in * 1000), // 現在時刻 + 有効期限
-        }));
+    // アクセストークンと有効期限をキャッシュに保存
+    fs.writeFileSync(TOKEN_PATH, JSON.stringify({
+        token: res.data.access_token,
+        expiry: new Date(Date.now() + res.data.expires_in * 1000), // 現在時刻 + 有効期限
+    }));
 
-        return res.data.access_token;
-    } catch (error) {
-        console.error('Token request failed:', error.response ? error.response.data : error.message);
-        throw error;
-    }
+    return res.data.access_token;
 }
 
 //固定メニュー実装
@@ -79,13 +74,14 @@ async function setFixedMenu() {
         const accessToken = await getAccessToken();
 
         const botId = process.env.BOT_ID;
-        if (!botId || !process.env.WEBAPP_URL) {
-            throw new Error("環境変数 BOT_ID, WEBAPP_URL を設定してください");
+        const webAppUrl = process.env.WEBAPP_URL;
+
+        if (!botId || !webAppUrl) {
+            throw new Error("BOT_IDまたはWEBAPP_URLが設定されていません。環境変数を確認してください。");
         }
 
         // 固定メニュー設定のAPIエンドポイント
         const apiUrl = `https://www.worksapis.com/v1.0/bots/${botId}/persistentmenu`;
-        
         // メニュー設定の詳細
         const menuConfig = {
             "content": {
@@ -98,6 +94,9 @@ async function setFixedMenu() {
                 ]
             }
         };
+
+        console.log("API URL:", apiUrl);
+        console.log("Menu Config:", JSON.stringify(menuConfig, null, 2));
 
         // API呼び出し
         const response = await axios.post(apiUrl, menuConfig, {
