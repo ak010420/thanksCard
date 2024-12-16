@@ -12,6 +12,18 @@ function getJWT() {
         throw new Error("環境変数 CLIENT_ID, SERVICE_ACCOUNT, PRIVATE_KEY を設定してください");
     }
 
+    // 改行文字を適切に処理
+    const privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, '\n')
+        // 改行が正しく含まれていない場合の追加対応
+        .replace(/^["|']/, '')
+        .replace(/["|']$/, '')
+        .trim();
+
+    // RSA形式の秘密鍵であることを確認
+    if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+        throw new Error('PRIVATE_KEY is not in the correct format. It should start with "-----BEGIN PRIVATE KEY-----"');
+    }
+
     return jwt.sign(
         {
             iss: process.env.CLIENT_ID,
@@ -19,14 +31,13 @@ function getJWT() {
             iat: currentTime,
             exp: currentTime + 3600,
         },
-        process.env.PRIVATE_KEY,
+        privateKey,
         { algorithm: "RS256" }
     );
 }
 
 // アクセストークン取得
 async function getAccessToken() {
-    try {
     // キャッシュチェック
     if (fs.existsSync(TOKEN_PATH)) {
         const tokenData = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf8'));
@@ -45,20 +56,18 @@ async function getAccessToken() {
         scope: "bot,user.read",
     });
 
-    const res = await axios.post("https://auth.worksmobile.com/oauth2/v2.0/token", params);
+    try {
+        const res = await axios.post("https://auth.worksmobile.com/oauth2/v2.0/token", params);
 
-    console.log('Access Token obtained successfully');
-    console.log('Token expires in:', res.data.expires_in, 'seconds');
+        // アクセストークンと有効期限をキャッシュに保存
+        fs.writeFileSync(TOKEN_PATH, JSON.stringify({
+            token: res.data.access_token,
+            expiry: new Date(Date.now() + res.data.expires_in * 1000), // 現在時刻 + 有効期限
+        }));
 
-    // アクセストークンと有効期限をキャッシュに保存
-    fs.writeFileSync(TOKEN_PATH, JSON.stringify({
-        token: res.data.access_token,
-        expiry: new Date(Date.now() + res.data.expires_in * 1000), // 現在時刻 + 有効期限
-    }));
-
-    return res.data.access_token;
+        return res.data.access_token;
     } catch (error) {
-        console.error('Failed to obtain access token:', error.response ? error.response.data : error.message);
+        console.error('Token request failed:', error.response ? error.response.data : error.message);
         throw error;
     }
 }
