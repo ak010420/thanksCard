@@ -41,32 +41,31 @@ function getJWT() {
 async function readTokenCache() {
     try {
         if (fs.existsSync(TOKEN_PATH)) {
-            const tokenData = JSON.parse(await readFile(TOKEN_PATH, 'utf8'));
+            const tokenData = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf8'));
             if (new Date(tokenData.expiry) > new Date()) {
                 return tokenData.token;
             }
         }
     } catch (error) {
-        console.error('Error reading token cache:', error);
+        console.error('トークンキャッシュの読み込みエラー:', error.message);  // エラーメッセージをログに出力
     }
     return null;
 }
 
 // アクセストークンと有効期限をキャッシュに保存
 async function writeTokenCache(token, expiresIn) {
-    try {
-        await writeFile(TOKEN_PATH, JSON.stringify({
-            token,
-            expiry: new Date(Date.now() + expiresIn * 1000),
-        }, null, 2));
-    } catch (error) {
-        console.error('Error writing token cache:', error);
-    }
+    const tokenData = {
+        token,
+        expiry: new Date(Date.now() + expiresIn * 1000), // 現在時刻 + 有効期限
+    };
+    
+    console.log('保存するトークンデータ:', tokenData);  // トークンデータを出力
+    fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokenData, null, 2)); // JSONを整形して保存
 }
 
 // アクセストークン取得
 async function getAccessToken() {
-    const cachedToken = readTokenCache();
+    const cachedToken = await readTokenCache();
     if (cachedToken) {
         console.log('使用中のキャッシュトークン:', cachedToken);
         return cachedToken;
