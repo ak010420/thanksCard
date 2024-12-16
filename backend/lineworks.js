@@ -38,6 +38,7 @@ function getJWT() {
 
 // アクセストークン取得
 async function getAccessToken() {
+    try {
     // キャッシュチェック
     if (fs.existsSync(TOKEN_PATH)) {
         const tokenData = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf8'));
@@ -64,7 +65,14 @@ async function getAccessToken() {
         expiry: new Date(Date.now() + res.data.expires_in * 1000), // 現在時刻 + 有効期限
     }));
 
+    console.log('Access Token obtained successfully');
+    console.log('Token expires in:', res.data.expires_in, 'seconds');
+
     return res.data.access_token;
+    } catch (error) {
+        console.error('Failed to obtain access token:', error.response ? error.response.data : error.message);
+        throw error;
+    }
 }
 
 //固定メニュー実装
