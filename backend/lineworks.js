@@ -36,39 +36,47 @@ function getJWT() {
     );
 }
 
-// アクセストークン取得
-async function getAccessToken() {
-    try {
-    // キャッシュチェック
+// キャッシュチェック
+function readTokenCache() {
     if (fs.existsSync(TOKEN_PATH)) {
         const tokenData = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf8'));
         if (new Date(tokenData.expiry) > new Date()) {
             return tokenData.token;
         }
     }
+    return null;
+}
 
-    const jwtToken = getJWT();
-
-    const params = new URLSearchParams({
-        assertion: jwtToken,
-        grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-        client_id: process.env.CLIENT_ID,
-        client_secret: process.env.CLIENT_SECRET,
-        scope: "bot,user.read",
-    });
-
-    const res = await axios.post("https://auth.worksmobile.com/oauth2/v2.0/token", params);
-
-    // アクセストークンと有効期限をキャッシュに保存
+// アクセストークンと有効期限をキャッシュに保存
+function writeTokenCache(token, expiresIn) {
     fs.writeFileSync(TOKEN_PATH, JSON.stringify({
-        token: res.data.access_token,
-        expiry: new Date(Date.now() + res.data.expires_in * 1000), // 現在時刻 + 有効期限
-    }));
+        token,
+        expiry: new Date(Date.now() + expiresIn * 1000),// 現在時刻 + 有効期限
+    }, null, 2));// JSONを整形して保存
+}
 
-    console.log('Access Token obtained successfully');
-    console.log('Token expires in:', res.data.expires_in, 'seconds');
+// アクセストークン取得
+async function getAccessToken() {
+    const cachedToken = readTokenCache();
+    if (cachedToken) {
+        return cachedToken;
+    }
 
-    return res.data.access_token;
+    try {
+        const jwtToken = getJWT();
+        const params = new URLSearchParams({
+            assertion: jwtToken,
+            grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            client_id: process.env.CLIENT_ID,
+            client_secret: process.env.CLIENT_SECRET,
+            scope: "bot,user.read",
+        });
+
+        const res = await axios.post("https://auth.worksmobile.com/oauth2/v2.0/token", params);
+
+        writeTokenCache(res.data.access_token, res.data.expires_in);
+        console.log('Access Token obtained successfully');
+        return res.data.access_token;
     } catch (error) {
         console.error('Failed to obtain access token:', error.response ? error.response.data : error.message);
         throw error;
@@ -118,23 +126,41 @@ async function setFixedMenu() {
         return response.data;
 
     } catch (error) {
-        console.error('固定メニュー設定エラー:', error.response ? error.response.data : error.message);
+        if (error.response) {
+            console.error('固定メニュー設定エラー (Response):', error.response.data);
+            console.error('HTTP Status:', error.response.status);
+            console.error('Headers:', error.response.headers);
+        } else {
+            console.error('固定メニュー設定エラー:', error.message);
+        }
         throw error;
     }
 }
 
 // ユーザー一覧取得
 async function getUserList() {
-    const token = await getAccessToken(); // 必要なトークンを取得
-    const response = await axios.get('https://apis.worksmobile.com/r/api/organization/users', {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+        const token = await getAccessToken();
+        console.log('Access Token for User List:', token);
 
-    // ユーザー情報を整形して返す
-    return response.data.users.map(user => ({
-        id: user.id,
-        name: user.name,
-    }));
+        const response = await axios.get('https://apis.worksmobile.com/r/api/organization/users', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.data.users || response.data.users.length === 0) {
+            console.warn('No users found in the API response.');
+            return [];
+        }
+
+        // ユーザー情報を整形して返す
+        return response.data.users.map(user => ({
+            id: user.id,
+            name: user.name,
+        }));
+    } catch (error) {
+        console.error('Failed to fetch user list:', error.response ? error.response.data : error.message);
+        throw error;
+    }
 }
 
-module.exports = { getAccessToken, getUserList };
+module.exports = { getAccessToken, getUserList, setFixedMenu };

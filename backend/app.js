@@ -7,13 +7,18 @@ const userRoutes = require('./routes/users');
 
 const app = express();
 app.use(bodyParser.json());
+app.use(compression()); // リソースを圧縮
+app.use(express.static(path.join(__dirname, '../frontend'), { maxAge: '1d' })); // 1日のキャッシュ
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/submissions', submissionRoutes);
 app.use('/users', userRoutes);
 
 // WOFFイベントのエンドポイント
-app.post('/woff/event', (req, res) => {
+aapp.post('/woff/event', (req, res) => {
+    const start = Date.now();
+    console.log('Request received at:', new Date().toISOString());
+
     const { type, data } = req.body;
 
     if (type === 'user.select') {
@@ -25,7 +30,9 @@ app.post('/woff/event', (req, res) => {
     }
 
     res.status(200).send('Event received');
+    console.log('Response sent in:', Date.now() - start, 'ms');
 });
+
 
 // フロントエンドのHTML提供
 app.get('/', (req, res) => {

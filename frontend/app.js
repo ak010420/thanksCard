@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // 全投稿タブの場合は投稿を読み込む
                 if (tabId === 'all') {
-                    loadAllSubmissions();
+                    await loadAllSubmissions(); // 必要なときだけ実行
                 }
             });
         });
@@ -147,14 +147,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 宛名リストを取得してセレクトボックスに表示
         const userListResponse = await fetch('/users');
+        if (!userListResponse.ok) {
+            throw new Error('Failed to fetch user list.');
+        }
         const users = await userListResponse.json();
+        console.log('Fetched users from backend:', users);
         const select = document.getElementById('receiver');
-        users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.id;
-            option.textContent = user.name;
-            select.appendChild(option);
-        });
+        if (users.length === 0) {
+            console.warn('No users available.');
+            select.innerHTML = '<option value="">利用可能なユーザーがいません</option>';
+        } else {
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.name;
+                select.appendChild(option);
+            });
+        }
 
         document.getElementById('submissionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
