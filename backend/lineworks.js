@@ -2,6 +2,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const axios = require("axios");
 const fs = require('fs');
+const { readFile, writeFile } = require('fs').promises;
 
 const TOKEN_PATH = './access_token.json'; // アクセストークンキャッシュ用
 
@@ -37,28 +38,37 @@ function getJWT() {
 }
 
 // キャッシュチェック
-function readTokenCache() {
-    if (fs.existsSync(TOKEN_PATH)) {
-        const tokenData = JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf8'));
-        if (new Date(tokenData.expiry) > new Date()) {
-            return tokenData.token;
+async function readTokenCache() {
+    try {
+        if (fs.existsSync(TOKEN_PATH)) {
+            const tokenData = JSON.parse(await readFile(TOKEN_PATH, 'utf8'));
+            if (new Date(tokenData.expiry) > new Date()) {
+                return tokenData.token;
+            }
         }
+    } catch (error) {
+        console.error('Error reading token cache:', error);
     }
     return null;
 }
 
 // アクセストークンと有効期限をキャッシュに保存
-function writeTokenCache(token, expiresIn) {
-    fs.writeFileSync(TOKEN_PATH, JSON.stringify({
-        token,
-        expiry: new Date(Date.now() + expiresIn * 1000),// 現在時刻 + 有効期限
-    }, null, 2));// JSONを整形して保存
+async function writeTokenCache(token, expiresIn) {
+    try {
+        await writeFile(TOKEN_PATH, JSON.stringify({
+            token,
+            expiry: new Date(Date.now() + expiresIn * 1000),
+        }, null, 2));
+    } catch (error) {
+        console.error('Error writing token cache:', error);
+    }
 }
 
 // アクセストークン取得
 async function getAccessToken() {
     const cachedToken = readTokenCache();
     if (cachedToken) {
+        console.log('使用中のキャッシュトークン:', cachedToken);
         return cachedToken;
     }
 
@@ -75,10 +85,10 @@ async function getAccessToken() {
         const res = await axios.post("https://auth.worksmobile.com/oauth2/v2.0/token", params);
 
         writeTokenCache(res.data.access_token, res.data.expires_in);
-        console.log('Access Token obtained successfully');
+        console.log('新しいアクセストークン取得成功:', res.data.access_token);
         return res.data.access_token;
     } catch (error) {
-        console.error('Failed to obtain access token:', error.response ? error.response.data : error.message);
+        console.error('アクセストークンの取得に失敗しました:', error.response ? error.response.data : error.message);
         throw error;
     }
 }
@@ -139,13 +149,12 @@ async function setFixedMenu() {
 async function getUserList() {
     try {
         const token = await getAccessToken();
-        console.log('Access Token', token);
-        console.log('Access Token for User List:', token);
+        console.log('アクセストークンでユーザーリスト取得開始:', token);
 
         const response = await axios.get('https://www.worksapis.com/v1.0/users', {
             headers: { Authorization: `Bearer ${token}` },
         });
-        console.log('API Response::', response.data); // レスポンスを確認
+        console.log('ユーザーリスト取得成功:', response.data); // レスポンスを確認
 
         if (!response.data.users || response.data.users.length === 0) {
             console.warn('No users found in the API response.');

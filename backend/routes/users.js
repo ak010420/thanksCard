@@ -29,7 +29,7 @@ router.post('/current', async (req, res) => {
             headers: { Authorization: `Bearer ${token}` },
         });
 
-        const username = response.data?.name || 'Unknown User';
+        const username = response.data.name || 'Unknown User';
         res.json({ username });
     } catch (error) {
         console.error('Failed to fetch current user:', error.message);
