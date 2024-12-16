@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // WOFF IDをバックエンドから取得
-        const woffId = process.env.TC_WOFF_ID;
+        const woffId = window.TC_WOFF_ID;
 
         // WOFF初期化
         const woff = await WOFF.init({ woffId });
