@@ -76,8 +76,8 @@ async function getAccessToken() {
         const params = new URLSearchParams({
             assertion: jwtToken,
             grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET,
+            client_id: process.env.TC_CLIENT_ID,
+            client_secret: process.env.TC_CLIENT_SECRET,
             scope: "bot,user.read",
         });
 
