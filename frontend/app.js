@@ -255,6 +255,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         async function loadAllSubmissions() {
             try {
                 const response = await fetch('/submissions/all');
+                
+                // レスポンスの詳細を確認
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
                 const submissions = await response.json();
                 
                 const container = document.getElementById('all-content');
@@ -280,6 +290,39 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     } catch (error) {
-        console.error('DOM Content Loaded Error:', error);
+        // エラー時のUI表示
+        const container = document.getElementById('all-content');
+        container.innerHTML = `<div class="error-message">投稿の読み込みに失敗しました: ${error.message}</div>`;
+    }
+});
+
+// サーバーエンドポイントの検証
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // エンドポイント検証
+        const endpoints = [
+            '/submissions/all', 
+            '/users', 
+            '/api/woff-id'
+        ];
+
+        for (const endpoint of endpoints) {
+            try {
+                const response = await fetch(endpoint);
+                console.log(`${endpoint} - Status: ${response.status}`);
+                
+                if (response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        console.log(`${endpoint} - Response:`, data);
+                    }
+                }
+            } catch (error) {
+                console.error(`Endpoint check failed for ${endpoint}:`, error);
+            }
+        }
+    } catch (error) {
+        console.error('エンドポイント検証エラー:', error);
     }
 });
