@@ -1,10 +1,20 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        console.log('DOM Content Loaded');
          // スライダーの位置を更新する関数
         function updateSlider(activeTab) {
             const slider = document.querySelector('.nav-tabs .slider');
             const tabs = document.querySelectorAll('.nav-tabs .tab');
             
+            // デバッグ用のコンソールログを追加
+            console.log('Slider:', slider);
+            console.log('Tabs:', tabs);
+            
+            if (!slider || !tabs.length) {
+                console.warn('スライダーまたはタブが見つかりません');
+                return;
+            }
+
             // タブのインデックスを取得
             const index = Array.from(tabs).indexOf(activeTab);
             
@@ -51,17 +61,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // 初期表示: 投稿フォームタブをアクティブにする
-        const initialTabId = 'form';
-        const initialTab = document.querySelector(`.nav-tabs .tab[data-tab="${initialTabId}"]`);
-        const initialContent = document.getElementById(initialTabId);
-
-        if (initialTab && initialContent) {
-            initialTab.classList.add('active');
-            initialContent.classList.add('active');
-            
-            // 初回のスライダー位置設定
-            updateSlider(initialTab);
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialTab = document.querySelector('.nav-tabs .tab[data-tab="form"]');
+            if (initialTab) {
+                console.log('Initial tab found:', initialTab);
+                updateSlider(initialTab);
+            } else {
+                console.warn('Initial tab not found');
+            }
+        });
 
         // タブ切り替えのイベントリスナーを追加
         const mainTabs = document.querySelectorAll('.nav-tabs .tab');
@@ -186,12 +194,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         
             try {
-                await fetch('/submissions', {
+                const response = await fetch('/submissions', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sender: user.id, receiver, date, content }),
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ 
+                        sender: user.id, 
+                        receiver, 
+                        date, 
+                        content 
+                    })
                 });
         
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`送信エラー: ${response.status} - ${errorText}`);
+                }
+        
+                const result = await response.json();
                 alert('送信しました！');
                 // フォームのリセット
                 document.getElementById('submissionForm').reset();
