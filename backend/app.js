@@ -6,12 +6,17 @@ const lineworks = require('./lineworks');
 const submissionRoutes = require('./routes/submissions');
 const userRoutes = require('./routes/users');
 
+// CORS対応
+app.use(cors());
+
+// ミドルウェア設定
 const app = express();
 app.use(bodyParser.json());
 app.use(compression()); // リソースを圧縮
 app.use(express.static(path.join(__dirname, '../frontend'), { maxAge: '1d' })); // 1日のキャッシュ
 app.use(express.static(path.join(__dirname, '../frontend')));
 
+// ルーティング
 app.use('/submissions', submissionRoutes);
 app.use('/users', userRoutes);
 

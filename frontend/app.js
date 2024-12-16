@@ -152,7 +152,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 宛名リストを取得してセレクトボックスに表示
         const userListResponse = await fetch('/users');
         if (!userListResponse.ok) {
-            throw new Error('Failed to fetch user list.');
+            console.error('Failed to fetch user list.');
+            alert('ユーザー情報の取得に失敗しました。再度お試しください。');
+            return;
         }
         const users = await userListResponse.json();
         console.log('Fetched users from backend:', users);// ここでレスポンス内容を確認
@@ -193,65 +195,72 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
         
                 alert('送信しました！');
+                // フォームのリセット
+                document.getElementById('submissionForm').reset();
+
             } catch (error) {
                 console.error('送信エラー:', error);
                 alert('送信に失敗しました。再度お試しください。');
             }
         });
 
-async function loadHistory(type) {
-    try {
-        const user = await WOFF.init({ woffId }).getUser();
-        const response = await fetch(`/submissions/${user.id}?filter=${type}`);
-        const submissions = await response.json();
-        
-        const container = document.getElementById('history-content');
-        container.innerHTML = '';
+        async function loadHistory(type) {
+            try {
+                const user = await WOFF.init({ woffId }).getUser();
+                const response = await fetch(`/submissions/${user.id}?filter=${type}`);
+                const submissions = await response.json();
+                
+                const container = document.getElementById('history-content');
+                container.innerHTML = '';
 
-        submissions.forEach(submission => {
-            const card = document.createElement('div');
-            card.classList.add('submission-card');
-            card.innerHTML = `
-                <div class="submission-header">
-                    ${type === 'sent' 
-                        ? `宛名: ${submission.receiver} さんへ`
-                        : `送信者: ${submission.sender} さんから`
-                    }
-                </div>
-                <div class="submission-date">日付: ${submission.date}</div>
-                <div class="submission-content">${submission.content}</div>
-            `;
-            container.appendChild(card);
-        });
+                submissions.forEach(submission => {
+                    const card = document.createElement('div');
+                    card.classList.add('submission-card');
+                    card.innerHTML = `
+                        <div class="submission-header">
+                            ${type === 'sent' 
+                                ? `宛名: ${submission.receiver} さんへ`
+                                : `送信者: ${submission.sender} さんから`
+                            }
+                        </div>
+                        <div class="submission-date">日付: ${submission.date}</div>
+                        <div class="submission-content">${submission.content}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('履歴読み込みエラー:', error);
+            }
+        }
+
+        async function loadAllSubmissions() {
+            try {
+                const response = await fetch('/submissions/all');
+                const submissions = await response.json();
+                
+                const container = document.getElementById('all-content');
+                container.innerHTML = '';
+
+                submissions.forEach(submission => {
+                    const card = document.createElement('div');
+                    card.classList.add('submission-card');
+                    card.innerHTML = `
+                        <div class="submission-header">
+                            宛名: ${submission.receiver} さんへ
+                        </div>
+                        <div class="submission-sender">
+                            送信者: ${submission.sender} さんから
+                        </div>
+                        <div class="submission-date">日付: ${submission.date}</div>
+                        <div class="submission-content">${submission.content}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('全投稿読み込みエラー:', error);
+            }
+        }
     } catch (error) {
-        console.error('履歴読み込みエラー:', error);
+        console.error('DOM Content Loaded Error:', error);
     }
-}
-
-async function loadAllSubmissions() {
-    try {
-        const response = await fetch('/submissions/all');
-        const submissions = await response.json();
-        
-        const container = document.getElementById('all-content');
-        container.innerHTML = '';
-
-        submissions.forEach(submission => {
-            const card = document.createElement('div');
-            card.classList.add('submission-card');
-            card.innerHTML = `
-                <div class="submission-header">
-                    宛名: ${submission.receiver} さんへ
-                </div>
-                <div class="submission-sender">
-                    送信者: ${submission.sender} さんから
-                </div>
-                <div class="submission-date">日付: ${submission.date}</div>
-                <div class="submission-content">${submission.content}</div>
-            `;
-            container.appendChild(card);
-        });
-    } catch (error) {
-        console.error('全投稿読み込みエラー:', error);
-    }
-}
+});
