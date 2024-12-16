@@ -76,6 +76,7 @@ async function getAccessToken() {
 
         writeTokenCache(res.data.access_token, res.data.expires_in);
         console.log('Access Token obtained successfully');
+        console.log('Access Token', res.data.access_token);
         return res.data.access_token;
     } catch (error) {
         console.error('Failed to obtain access token:', error.response ? error.response.data : error.message);
@@ -144,7 +145,7 @@ async function getUserList() {
         const response = await axios.get('https://www.worksapis.com/v1.0/users', {
             headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(response.data); // レスポンスを確認
+        console.log('API Response::', response.data); // レスポンスを確認
 
         if (!response.data.users || response.data.users.length === 0) {
             console.warn('No users found in the API response.');
