@@ -5,6 +5,7 @@ const compression = require('compression');
 const lineworks = require('./lineworks');
 const submissionRoutes = require('./routes/submissions');
 const userRoutes = require('./routes/users');
+const cors = require('cors');
 
 // CORS対応
 app.use(cors());
