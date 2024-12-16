@@ -136,6 +136,7 @@ async function setFixedMenu() {
             console.error('HTTP Status:', error.response.status);
             console.error('Headers:', error.response.headers);
         }
+        console.error('固定メニュー設定エラー (Generic):', error.message);
         throw error;
     }
 }
@@ -149,6 +150,7 @@ async function getUserList() {
         const response = await axios.get('https://www.worksapis.com/v1.0/users', {
             headers: { Authorization: `Bearer ${token}` },
         });
+
         console.log('ユーザーリスト取得成功:', response.data);
 
         if (!response.data.users || response.data.users.length === 0) {
@@ -162,7 +164,12 @@ async function getUserList() {
             name: user.name,
         }));
     } catch (error) {
-        console.error('ユーザーリスト取得エラー:', error.response ? error.response.data : error.message);
+        if (error.response) {
+            console.error('ユーザーリスト取得エラー (Response):', error.response.data);
+            console.error('HTTP Status:', error.response.status);
+            console.error('Headers:', error.response.headers);
+        }
+        console.error('ユーザーリスト取得エラー (Generic):', error.message);
         throw error;
     }
 }
