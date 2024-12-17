@@ -5,8 +5,19 @@ document.addEventListener('DOMContentLoaded', async function () {
         const { woffId } = await woffIdResponse.json();
         if (!woffId) throw new Error('WOFF ID が取得できませんでした。');
 
-        // WOFF SDK 初期化
-        await woff.init({ woffId });
+        // WOFF SDK 初期化 - エラーハンドリングを追加
+        await woff.init({ 
+            woffId: woffId 
+        }).catch((err) => {
+            console.error('WOFF SDK 初期化エラー:', err);
+            // エラーの詳細なログを取得
+            if (err instanceof WoffError) {
+                console.log('エラーコード:', err.code);
+                console.log('エラーメッセージ:', err.message);
+            }
+            throw err;
+        });
+
         console.log('WOFF SDK 初期化成功');
 
         // 実行環境を確認
