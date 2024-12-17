@@ -3,7 +3,7 @@ require('dotenv').config();
 const bodyParser = require('body-parser');
 const path = require('path');
 const compression = require('compression');
-const lineworks = require('./lineworks');
+const axios = require('axios'); // axios の追加
 const { setFixedMenu } = require('./lineworks');
 const submissionRoutes = require('./routes/submissions');
 const userRoutes = require('./routes/users');
@@ -11,16 +11,17 @@ const cors = require('cors');
 
 const app = express();
 
-// CORS対応
-app.use(cors());
+// CORS設定
+app.use(cors({
+    origin: 'https://thanks-card-system.onrender.com/' || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // ミドルウェア設定
 app.use(bodyParser.json());
 app.use(compression()); // リソースを圧縮
-app.use(express.static(path.join(__dirname, '../frontend'), { maxAge: '1d' })); // 1日のキャッシュ
-app.use(express.static(path.join(__dirname, '../frontend')));
-// ユーザーリストのエンドポイント
-app.use('/users', require('./routes/users'));
+app.use(express.static(path.join(__dirname, '../frontend'), { maxAge: '1d' }));
 
 // ルーティング
 app.use('/submissions', submissionRoutes);
@@ -32,15 +33,12 @@ app.use('/users', userRoutes);
         await setFixedMenu();
         console.log('固定メニューが正常に設定されました');
     } catch (error) {
-        console.error('固定メニュー設定エラー:', error.message);
+        console.error('固定メニュー設定エラー:', error.response ? error.response.data : error.message);
     }
 })();
 
 // WOFFイベントのエンドポイント
 app.post('/woff/event', async(req, res) => {
-    //const start = Date.now();
-    //console.log('Request received at:', new Date().toISOString());
-
     const { type, data } = req.body;
 
     try {
@@ -67,24 +65,14 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// エラーハンドリングを追加
-// app.use((err, req, res, next) => {
-//     res.on('finish', () => {
-//         console.log(`Response: ${res.statusCode} ${res.statusMessage}`);
-//     });
-//     next();
-//     console.error('Unhandled Error:', err);
-//     res.status(500).json({ 
-//         error: 'Internal Server Error', 
-//         details: err.message 
-//     });
-// });
-
-// app.use(cors({
-//     origin: 'https://thanks-card-system.onrender.com', // フロントエンドのURL
-//     methods: ['GET', 'POST', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization']
-// }));
+// エラーハンドリング
+app.use((err, req, res, next) => {
+    console.error('Unhandled Error:', err);
+    res.status(500).json({ 
+        error: 'Internal Server Error', 
+        details: err.message 
+    });
+});
 
 const PORT = process.env.TC_PORT || 3000;
 app.listen(PORT, () => {

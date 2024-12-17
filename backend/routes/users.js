@@ -4,6 +4,11 @@ const axios = require('axios');
 
 const router = express.Router();
 
+// WOFF IDを返すエンドポイント
+router.get('/woff-id', (req, res) => {
+    res.json({ woffId: process.env.TC_WOFF_ID });
+});
+
 // ユーザーリスト取得エンドポイント
 router.get('/', async (req, res) => {
     try {

@@ -1,9 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // WOFF初期化
-        const woffId = window.TC_WOFF_ID;
-        await woff.init({ woffId });
-        console.log('WOFF SDK initialized');
+        woff.init({
+            woffId: 'ZejkHgUNcnP7YRk7nQFJWw' // ここに WOFF ID を直接指定
+        }).then(() => {
+            console.log('WOFF SDK の初期化に成功しました');
+        }).catch(err => {
+            console.error('WOFF SDK 初期化エラー:', err.message);
+        });
+        
 
         // 環境確認
         if (!woff.isInClient()) {
