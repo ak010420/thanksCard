@@ -7,8 +7,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tabs = document.querySelectorAll('.nav-tabs .tab');
             
             // デバッグ用のコンソールログを追加
-            console.log('Slider:', slider);
+            console.log('Slider element:', slider);
             console.log('Tabs:', tabs);
+            console.log('Active tab:', activeTab);
             
             if (!slider || !tabs.length) {
                 console.warn('スライダーまたはタブが見つかりません');
@@ -62,6 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 初期表示: 投稿フォームタブをアクティブにする
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOMContentLoaded triggered');
+            
             const initialTab = document.querySelector('.nav-tabs .tab[data-tab="form"]');
             if (initialTab) {
                 console.log('Initial tab found:', initialTab);

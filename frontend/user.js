@@ -1,11 +1,14 @@
 document.addEventListener('DOMContentLoaded', async function() {
-    const userSelect = document.getElementById('receiver');
-    const userSpan = document.getElementById('user');
-
     try {
         // ユーザーリストをバックエンドから取得
         const response = await fetch('/users');
         const users = await response.json();
+
+        // コンソールで確認
+        console.log('Users fetched:', users);
+
+        const receiver = document.getElementById('receiver');
+        const userSpan = document.getElementById('user');
 
         // ユーザーリストをセレクトオプションに追加
         users.forEach(user => {
