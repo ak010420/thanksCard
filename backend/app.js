@@ -13,10 +13,18 @@ const app = express();
 
 // CORS設定
 app.use(cors({
-    origin: 'https://thanks-card-system.onrender.com/' || 'http://localhost:3000',
+    origin: (origin, callback) => {
+        const allowedOrigins = [process.env.TC_WEBAPP_URL, 'http://localhost:3000'];
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 
 // ミドルウェア設定
 app.use(bodyParser.json());
@@ -49,7 +57,7 @@ app.post('/woff/event', async(req, res) => {
                 return res.status(400).send('UserId not found');
             }
 
-            const response = await axios.post('http://localhost:3000/users/current', { userId });
+            const response = await axios.post(`${process.env.TC_WEBAPP_URL}/users/current`, { userId });
             res.status(200).json({ message: 'User recognized', username: response.data.username });
         } else {
             res.status(400).send('Unknown event type');

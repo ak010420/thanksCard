@@ -1,24 +1,50 @@
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     try {
-        // WOFF ID をバックエンドから取得
+        // バックエンドから WOFF ID を取得
         const woffIdResponse = await fetch('/users/woff-id');
+        if (!woffIdResponse.ok) {
+            throw new Error('WOFF ID の取得に失敗しました。');
+        }
         const { woffId } = await woffIdResponse.json();
+
+        if (!woffId) {
+            throw new Error('WOFF ID が空です。');
+        }
 
         // WOFF SDK 初期化
         await woff.init({ woffId });
-        console.log('WOFF SDK initialized successfully');
+        console.log('WOFF SDK 初期化成功');
+
+        // 実行環境確認
+        const os = woff.getOS();
+        console.log(`WOFF 実行環境: ${os}`);
+
+        if (!woff.isInClient()) {
+            console.warn('LINE WORKS アプリ外で実行されています。');
+            alert('LINE WORKS アプリ内で完全に動作します。');
+        }
 
         // ユーザーリスト取得
         const response = await fetch('/users');
+        if (!response.ok) {
+            throw new Error('ユーザーリストの取得に失敗しました。');
+        }
         const users = await response.json();
+
+        if (!Array.isArray(users)) {
+            throw new Error('ユーザーリストが不正な形式です。');
+        }
 
         console.log('Users fetched:', users);
 
         const receiver = document.getElementById('receiver');
         const userSpan = document.getElementById('user');
 
-        // 初期化: セレクトボックスにデフォルトオプションを追加
-        receiver.innerHTML = '<option value="">選択してください</option>';
+        // セレクトボックスの初期化
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '選択してください';
+        receiver.appendChild(defaultOption);
 
         // ユーザーリストをセレクトボックスに追加
         users.forEach(user => {
@@ -36,5 +62,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     } catch (error) {
         console.error('エラーが発生しました:', error.message);
+        alert(`エラー: ${error.message}`);
     }
 });

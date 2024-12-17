@@ -1,17 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const woffIdResponse = await fetch('/users/woff-id');
-        const { woffId } = await woffIdResponse.json();
-
-        // WOFF SDK 初期化
-        await woff.init({ woffId });
-        console.log('WOFF SDK initialized successfully');
-        // 環境確認
-        if (!woff.isInClient()) {
-            alert('LINE WORKSアプリ内でのみ実行可能です。');
-            return;
-        }
-
         // プロフィール取得
         const profile = await woff.getProfile();
         console.log('Current User Profile:', profile);
