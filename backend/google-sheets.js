@@ -32,34 +32,27 @@ async function getSheet(sheetName) {
     }
 }
 
-async function updateSummarySheet() {
+async function updateSummarySheet(userList) {
     const submissionsSheet = await getSheet('投稿一覧');
     const summarySheet = await getSheet('集計');
-    
-    if (!sheet) {
-        throw new Error('Sheet not found');
-    }
-
     const rows = await submissionsSheet.getRows();
-    
-    // データをグループ化して集計
+
     const groupedData = {};
     rows.forEach(row => {
         const { sender, receiver, date } = row;
         const [year, month] = date.split('-');
         const period = parseInt(month) <= 6 ? `${year}年上期` : `${year}年下期`;
 
-        if (!groupedData[sender]) groupedData[sender] = {};
-        if (!groupedData[receiver]) groupedData[receiver] = {};
-
-        if (!groupedData[sender][period]) groupedData[sender][period] = { sent: 0, received: 0 };
-        if (!groupedData[receiver][period]) groupedData[receiver][period] = { sent: 0, received: 0 };
+        [sender, receiver].forEach(user => {
+            if (!groupedData[user]) groupedData[user] = {};
+            if (!groupedData[user][period]) groupedData[user][period] = { sent: 0, received: 0 };
+        });
 
         groupedData[sender][period].sent += 1;
         groupedData[receiver][period].received += 1;
     });
 
-    // 動的に見出しを更新
+    // 動的ヘッダー設定
     const headers = ['ユーザー名'];
     const allPeriods = new Set();
     Object.values(groupedData).forEach(data => {
@@ -72,11 +65,11 @@ async function updateSummarySheet() {
     await summarySheet.clear();
     await summarySheet.setHeaderRow(headers);
 
-    // データ行を追加
-    const summaryRows = Object.keys(groupedData).map(user => {
+    // ユーザーリストに基づいて集計データを追加
+    const summaryRows = userList.map(user => {
         const row = { 'ユーザー名': user };
         allPeriods.forEach(period => {
-            const userPeriod = groupedData[user][period] || { sent: 0, received: 0 };
+            const userPeriod = groupedData[user]?.[period] || { sent: 0, received: 0 };
             row[`${period}_送信件数`] = userPeriod.sent;
             row[`${period}_受信件数`] = userPeriod.received;
         });
@@ -85,5 +78,6 @@ async function updateSummarySheet() {
 
     await summarySheet.addRows(summaryRows);
 }
+
 
 module.exports = { getSheet, updateSummarySheet };

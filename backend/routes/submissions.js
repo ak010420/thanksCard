@@ -40,18 +40,15 @@ router.get('/:userId', async (req, res) => {
 });
 
 // すべての提出データを取得するエンドポイント
-router.get('/all', async (req, res) => {
+router.get('/:userId', async (req, res) => {
+    const { filter } = req.query;
+
     try {
-        const submissions = await getAllSubmissions();
-        if (!submissions || submissions.length === 0) {
-            return res.status(404).json({ message: '提出データが見つかりませんでした' });
-        }
+        const submissions = await getSubmissions(req.params.userId, filter);
         res.json(submissions);
     } catch (error) {
-        console.error('提出データ取得エラー:', error.message);
-        res.status(502).json({ 
-            error: 'データベースから提出データの取得に失敗しました。' 
-        });
+        console.error('履歴データ取得エラー:', error.message);
+        res.status(500).json({ error: '履歴データの取得に失敗しました。' });
     }
 });
 
