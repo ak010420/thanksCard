@@ -147,18 +147,19 @@ async function setFixedMenu() {
 async function getUserList() {
     try {
         const token = await getAccessToken();
-        console.log('アクセストークンでユーザーリスト取得開始:', token);
+        console.log('ユーザーリスト取得中');
 
         const response = await axios.get('https://www.worksapis.com/v1.0/users', {
             headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log('ユーザーリスト取得成功:', response.data);
-
         if (!response.data.users || response.data.users.length === 0) {
-            console.warn('No users found in the API response.');
+            console.log('ユーザーが見つかりませんでした。');
             return [];
         }
+
+        // ユーザー数のみをコンソールに出力
+        console.log(`ユーザー数: ${response.data.users.length}`);
 
         // ユーザー情報を整形して返す
         return response.data.users.map(user => {
@@ -173,12 +174,7 @@ async function getUserList() {
             };
         });
     } catch (error) {
-        if (error.response) {
-            console.error('ユーザーリスト取得エラー (Response):', error.response.data);
-            console.error('HTTP Status:', error.response.status);
-            console.error('Headers:', error.response.headers);
-        }
-        console.error('ユーザーリスト取得エラー (Generic):', error.message);
+        console.error('ユーザーリスト取得エラー:', error.message);
         throw error;
     }
 }
