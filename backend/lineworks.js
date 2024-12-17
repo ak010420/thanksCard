@@ -38,7 +38,9 @@ function getJWT() {
 // キャッシュチェック
 async function readTokenCache() {
     try {
-        const tokenData = await fs.readFile(TOKEN_PATH, 'utf8').then(JSON.parse).catch(() => null);
+        const tokenData = await fs.readFile(TOKEN_PATH, 'utf8');
+        const parsedData = JSON.parse(tokenData);
+        
         if (tokenData && new Date(tokenData.expiry) > new Date()) {
             return tokenData.token;
         }
@@ -159,10 +161,17 @@ async function getUserList() {
         }
 
         // ユーザー情報を整形して返す
-        return response.data.users.map(user => ({
-            id: user.id,
-            name: user.name,
-        }));
+        return response.data.users.map(user => {
+            // userNameが存在する場合はlastNameとfirstNameを結合
+            const userName = user.userName
+                ? `${user.userName.lastName || ''} ${user.userName.firstName || ''}`.trim()
+                : '名前未設定';
+
+            return {
+                id: user.userId,
+                name: userName,
+            };
+        });
     } catch (error) {
         if (error.response) {
             console.error('ユーザーリスト取得エラー (Response):', error.response.data);
