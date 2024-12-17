@@ -6,27 +6,33 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (!woffId) throw new Error('WOFF ID が取得できませんでした。');
 
         // WOFF SDK 初期化 - エラーハンドリングを追加
-        await woff.init({ 
-            woffId: woffId 
-        }).catch((err) => {
-            console.error('WOFF SDK 初期化エラー:', err);
-            // エラーの詳細なログを取得
-            if (err instanceof WoffError) {
-                console.log('エラーコード:', err.code);
-                console.log('エラーメッセージ:', err.message);
-            }
-            throw err;
-        });
-
-        console.log('WOFF SDK 初期化成功');
-
+        await woff.init({ woffId })
+            .then(() => {
+                console.log('WOFF SDK 初期化成功');
+            })
+            .catch((err) => {
+                console.error('WOFF SDK 初期化エラー詳細:', {
+                    name: err.name,
+                    message: err.message,
+                    code: err.code
+                });
+                throw err;
+            });
+        
         // 実行環境を確認
         const os = woff.getOS();
         console.log(`WOFF 実行環境: ${os}`);
 
         if (!woff.isInClient()) {
-            console.warn('LINE WORKS アプリ外で実行されています。');
-            alert('LINE WORKS アプリ内で動作する機能です。');
+            console.warn('LINE WORKS アプリ外で実行されています。一部の機能が制限される可能性があります。');
+            
+            // Web環境の場合の追加処理
+            if (!woff.isLoggedIn()) {
+                // ログインプロセスの開始
+                woff.login({
+                    redirectUri: process.env.TC_WEBAPP_URL
+                });
+            }
         }
 
         // ユーザーリスト取得
