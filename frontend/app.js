@@ -5,12 +5,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         await woff.init({ woffId });
         console.log('WOFF SDK initialized');
 
-        // WOFF環境確認
+        // 環境確認
         if (!woff.isInClient()) {
             alert('LINE WORKSアプリ内でのみ実行可能です。');
             return;
         }
 
+        // プロフィール取得
         const profile = await woff.getProfile();
         console.log('Current User Profile:', profile);
 
@@ -18,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const displayName = profile.displayName;
         document.getElementById('user').textContent = `ようこそ、${displayName} さん`;
 
-        // 初期表示: nav-tabsスライダー設定
+        // --- nav-tabs スライダー設定 ---
         const navTabs = document.querySelectorAll('.nav-tabs .tab');
         const navSlider = document.querySelector('.nav-tabs .slider');
 
@@ -49,41 +50,40 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const targetContent = document.getElementById(tabId);
                 if (targetContent) targetContent.classList.add('active');
 
-                // 投稿一覧タブのロード処理
                 if (tabId === 'all') loadAllSubmissions();
             });
         });
 
-        // 全投稿表示処理
-        async function loadAllSubmissions() {
-            try {
-                const response = await fetch('/submissions/all');
-                const submissions = await response.json();
+        // --- 履歴タブ (history-tabs) 設定 ---
+        const historyTabs = document.querySelectorAll('.history-tab');
+        const historySlider = document.querySelector('.history-tab-slider');
 
-                const container = document.getElementById('all-content');
-                container.innerHTML = '';
+        const setHistorySliderPosition = (activeTab) => {
+            const tabWidth = activeTab.offsetWidth;
+            let leftPosition = 0;
+            historyTabs.forEach((tab, index) => {
+                if (tab === activeTab) return;
+                leftPosition += tab.offsetWidth;
+            });
+            historySlider.style.width = `${tabWidth}px`;
+            historySlider.style.transform = `translateX(${leftPosition}px)`;
+        };
 
-                submissions.forEach(submission => {
-                    const card = document.createElement('div');
-                    card.classList.add('submission-card');
-                    card.innerHTML = `
-                        <div class="submission-header">
-                            宛名: ${submission.receiver} さんへ
-                        </div>
-                        <div class="submission-sender">
-                            送信者: ${submission.sender} さんから
-                        </div>
-                        <div class="submission-date">日付: ${submission.date}</div>
-                        <div class="submission-content">${submission.content}</div>
-                    `;
-                    container.appendChild(card);
-                });
-            } catch (error) {
-                console.error('投稿一覧読み込みエラー:', error);
-            }
-        }
+        const initialHistoryTab = document.querySelector('.history-tab.active');
+        if (initialHistoryTab) setHistorySliderPosition(initialHistoryTab);
 
-        // 履歴読み込み関数
+        historyTabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                historyTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                setHistorySliderPosition(this);
+
+                const type = this.getAttribute('data-type');
+                loadHistory(type);
+            });
+        });
+
+        // --- 履歴データの取得 ---
         async function loadHistory(type) {
             try {
                 const response = await fetch(`/submissions/${currentUserId}?filter=${type}`);
@@ -108,11 +108,42 @@ document.addEventListener('DOMContentLoaded', async () => {
                     container.appendChild(card);
                 });
             } catch (error) {
-                console.error('履歴読み込みエラー:', error);
+                console.error('履歴データ取得エラー:', error);
+                document.getElementById('history-content').innerHTML = '<p>データの取得に失敗しました。</p>';
             }
         }
 
-        // 初回表示: 送信履歴をロード
+        // --- 投稿一覧の取得 ---
+        async function loadAllSubmissions() {
+            try {
+                const response = await fetch('/submissions/all');
+                const submissions = await response.json();
+
+                const container = document.getElementById('all-content');
+                container.innerHTML = '';
+
+                submissions.forEach(submission => {
+                    const card = document.createElement('div');
+                    card.classList.add('submission-card');
+                    card.innerHTML = `
+                        <div class="submission-header">
+                            宛名: ${submission.receiver} さんへ
+                        </div>
+                        <div class="submission-sender">
+                            送信者: ${submission.sender} さんから
+                        </div>
+                        <div class="submission-date">日付: ${submission.date}</div>
+                        <div class="submission-content">${submission.content}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('投稿一覧データ取得エラー:', error);
+                document.getElementById('all-content').innerHTML = '<p>データの取得に失敗しました。</p>';
+            }
+        }
+
+        // 初回表示: 送信履歴
         loadHistory('sent');
 
     } catch (error) {
