@@ -1,15 +1,11 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // WOFF初期化
-        woff.init({
-            woffId: 'ZejkHgUNcnP7YRk7nQFJWw' // ここに WOFF ID を直接指定
-        }).then(() => {
-            console.log('WOFF SDK の初期化に成功しました');
-        }).catch(err => {
-            console.error('WOFF SDK 初期化エラー:', err.message);
-        });
-        
+        const woffIdResponse = await fetch('/users/woff-id');
+        const { woffId } = await woffIdResponse.json();
 
+        // WOFF SDK 初期化
+        await woff.init({ woffId });
+        console.log('WOFF SDK initialized successfully');
         // 環境確認
         if (!woff.isInClient()) {
             alert('LINE WORKSアプリ内でのみ実行可能です。');
